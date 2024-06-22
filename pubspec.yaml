@@ -10,12 +10,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  http: ^0.13.6
+  http: ^1.2.1
   json_annotation: ^4.8.1
   build_runner: ^2.4.6
   locale_names: ^1.1.1
   xml: ^6.3.0
-  sigv4: ^5.0.0
 
 dev_dependencies:
   flutter_test:

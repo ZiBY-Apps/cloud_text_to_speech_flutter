@@ -1,7 +1,3 @@
-import 'package:cloud_text_to_speech/src/amazon/audio/audio_responses.dart';
-import 'package:cloud_text_to_speech/src/amazon/common/init.dart';
-import 'package:cloud_text_to_speech/src/amazon/tts/tts.dart';
-import 'package:cloud_text_to_speech/src/amazon/voices/voices.dart';
 import 'package:cloud_text_to_speech/src/common/tts/tts_providers.dart';
 import 'package:cloud_text_to_speech/src/common/utils/helpers.dart';
 import 'package:cloud_text_to_speech/src/common/utils/log.dart';
@@ -33,9 +29,8 @@ class TtsUniversal {
           {required String provider,
           InitParamsGoogle? googleParams,
           InitParamsMicrosoft? microsoftParams,
-          InitParamsAmazon? amazonParams,
           bool withLogs = true}) =>
-      _init(provider, googleParams, microsoftParams, amazonParams, withLogs);
+      _init(provider, googleParams, microsoftParams, withLogs);
 
   ///Get voices
   ///
@@ -58,19 +53,15 @@ class TtsUniversal {
       amazon: () => _getVoices(TtsProviders.amazon),
       combine: () async {
         List<Future<VoicesSuccessUniversal>> allVoicesFutures = [
-          if (isProviderInitDone(TtsProviders.google))
-            _getVoices(TtsProviders.google),
-          if (isProviderInitDone(TtsProviders.microsoft))
-            _getVoices(TtsProviders.microsoft),
-          if (isProviderInitDone(TtsProviders.amazon))
-            _getVoices(TtsProviders.amazon),
+          if (isProviderInitDone(TtsProviders.google)) _getVoices(TtsProviders.google),
+          if (isProviderInitDone(TtsProviders.microsoft)) _getVoices(TtsProviders.microsoft),
+          if (isProviderInitDone(TtsProviders.amazon)) _getVoices(TtsProviders.amazon),
         ];
 
-        List<VoicesSuccessUniversal> allVoices =
-            await Future.wait(allVoicesFutures);
+        List<VoicesSuccessUniversal> allVoices = await Future.wait(allVoicesFutures);
 
-        VoicesSuccessUniversal aggregatedVoices = VoicesSuccessUniversal(
-            voices: [], code: 200, reason: 'Aggregated voices');
+        VoicesSuccessUniversal aggregatedVoices =
+            VoicesSuccessUniversal(voices: [], code: 200, reason: 'Aggregated voices');
 
         List<VoiceUniversal> voices = [];
 
@@ -91,18 +82,11 @@ class TtsUniversal {
     return await handleProvider<Future<VoicesSuccessUniversal>>(
         google: () async {
           VoicesSuccessGoogle voices = await TtsGoogle.getVoices();
-          return VoicesSuccessUniversal(
-              voices: voices.voices, code: voices.code, reason: voices.reason);
+          return VoicesSuccessUniversal(voices: voices.voices, code: voices.code, reason: voices.reason);
         },
         microsoft: () async {
           VoicesSuccessMicrosoft voices = await TtsMicrosoft.getVoices();
-          return VoicesSuccessUniversal(
-              voices: voices.voices, code: voices.code, reason: voices.reason);
-        },
-        amazon: () async {
-          VoicesSuccessAmazon voices = await TtsAmazon.getVoices();
-          return VoicesSuccessUniversal(
-              voices: voices.voices, code: voices.code, reason: voices.reason);
+          return VoicesSuccessUniversal(voices: voices.voices, code: voices.code, reason: voices.reason);
         },
         provider: provider);
   }
@@ -123,34 +107,21 @@ class TtsUniversal {
   /// [AudioFailedBadRequestAmazon], [AudioFailedUnauthorizedAmazon], [AudioFailedUnsupportedAmazon], [AudioFailedTooManyRequestAmazon],
   /// [AudioFailedBadGatewayAmazon], [AudioFailedBadGatewayAmazon], [AudioFailedUnknownErrorAmazon]
   ///
-  static Future<AudioSuccessUniversal> convertTts(
-      TtsParamsUniversal params) async {
+  static Future<AudioSuccessUniversal> convertTts(TtsParamsUniversal params) async {
     return await handleProvider<Future<AudioSuccessUniversal>>(
         google: () async {
-          AudioSuccessGoogle audio =
-              await TtsGoogle.convertTts(TtsParamsMapper.toGoogle(params));
-          return AudioSuccessUniversal(
-              audio: audio.audio, code: audio.code, reason: audio.reason);
+          AudioSuccessGoogle audio = await TtsGoogle.convertTts(TtsParamsMapper.toGoogle(params));
+          return AudioSuccessUniversal(audio: audio.audio, code: audio.code, reason: audio.reason);
         },
         microsoft: () async {
-          AudioSuccessMicrosoft audio = await TtsMicrosoft.convertTts(
-              TtsParamsMapper.toMicrosoft(params));
-          return AudioSuccessUniversal(
-              audio: audio.audio, code: audio.code, reason: audio.reason);
-        },
-        amazon: () async {
-          AudioSuccessAmazon audio =
-              await TtsAmazon.convertTts(TtsParamsMapper.toAmazon(params));
-          return AudioSuccessUniversal(
-              audio: audio.audio, code: audio.code, reason: audio.reason);
+          AudioSuccessMicrosoft audio = await TtsMicrosoft.convertTts(TtsParamsMapper.toMicrosoft(params));
+          return AudioSuccessUniversal(audio: audio.audio, code: audio.code, reason: audio.reason);
         },
         provider: params.voice.provider);
   }
 
-  static void _init(String provider, InitParamsGoogle? google,
-      InitParamsMicrosoft? microsoft, InitParamsAmazon? amazon,
-      [bool withLogs = true]) {
-    _assertInitParams(provider, google, microsoft, amazon);
+  static void _init(String provider, InitParamsGoogle? google, InitParamsMicrosoft? microsoft, [bool withLogs = true]) {
+    _assertInitParams(provider, google, microsoft);
     _initLogs(withLogs);
 
     TtsUniversal._provider = provider.toLowerCase();
@@ -169,11 +140,6 @@ class TtsUniversal {
         initialisedProviders.add(TtsProviders.microsoft);
       }
 
-      if (amazon != null) {
-        TtsAmazon.init(params: amazon);
-        initialisedProviders.add(TtsProviders.amazon);
-      }
-
       _initDone = true;
       Log.d("TtsUniversal initialised for: ${initialisedProviders.join(', ')}");
     } else {
@@ -181,11 +147,9 @@ class TtsUniversal {
     }
   }
 
-  static void _assertInitParams(String provider, InitParamsGoogle? google,
-      InitParamsMicrosoft? microsoft, InitParamsAmazon? amazon) {
-    if (google == null && microsoft == null && amazon == null) {
-      throw Exception(
-          "Initialization parameters are missing for all providers.");
+  static void _assertInitParams(String provider, InitParamsGoogle? google, InitParamsMicrosoft? microsoft) {
+    if (google == null && microsoft == null) {
+      throw Exception("Initialization parameters are missing for all providers.");
     }
 
     switch (provider) {
@@ -193,11 +157,7 @@ class TtsUniversal {
         assert(google != null, 'Google initialization parameters are missing.');
         break;
       case TtsProviders.microsoft:
-        assert(microsoft != null,
-            'Microsoft initialization parameters are missing.');
-        break;
-      case TtsProviders.amazon:
-        assert(amazon != null, 'Amazon initialization parameters are missing.');
+        assert(microsoft != null, 'Microsoft initialization parameters are missing.');
         break;
       case TtsProviders.combine:
         break;
@@ -231,8 +191,7 @@ class TtsUniversal {
     }
   }
 
-  static void _initLogs(bool withLogs) =>
-      withLogs ? Log.enable() : Log.disable();
+  static void _initLogs(bool withLogs) => withLogs ? Log.enable() : Log.disable();
 
   static bool isProviderInitDone(String provider) {
     switch (provider) {
@@ -240,8 +199,6 @@ class TtsUniversal {
         return TtsGoogle.initDone;
       case TtsProviders.microsoft:
         return TtsMicrosoft.initDone;
-      case TtsProviders.amazon:
-        return TtsAmazon.initDone;
       default:
         throw Exception("Unknown provider: $provider");
     }

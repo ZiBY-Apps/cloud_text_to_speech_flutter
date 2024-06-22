@@ -5,21 +5,13 @@ void main() async {
     TtsUniversal.init(
         provider: TtsProviders.amazon,
         googleParams: InitParamsGoogle(apiKey: 'API-KEY'),
-        microsoftParams: InitParamsMicrosoft(
-            subscriptionKey: 'SUBSCRIPTION-KEY', region: 'eastus'),
-        amazonParams: InitParamsAmazon(
-            keyId: 'KEY-ID', accessKey: 'ACCESS-KEY', region: 'us-east-1'),
+        microsoftParams: InitParamsMicrosoft(subscriptionKey: 'SUBSCRIPTION-KEY', region: 'eastus'),
         withLogs: true);
 
     //Generate Audio for a text
-    final text =
-        '<break time="2s" bre="34"/>Single Universal <some time="3s"/> Text-to-Speech API is awesome';
+    const text = '<break time="2s" bre="34"/>Single Universal <some time="3s"/> Text-to-Speech API is awesome';
 
-    for (String provider in [
-      TtsProviders.amazon,
-      TtsProviders.microsoft,
-      TtsProviders.google
-    ]) {
+    for (String provider in [TtsProviders.amazon, TtsProviders.microsoft, TtsProviders.google]) {
       TtsUniversal.setProvider(provider);
 
       //Get voices
@@ -30,10 +22,7 @@ void main() async {
       print(voices);
 
       //Pick an English Voice
-      final voice = voices
-          .where((element) => element.locale.code.startsWith("en-"))
-          .toList(growable: false)
-          .first;
+      final voice = voices.where((element) => element.locale.code.startsWith("en-")).toList(growable: false).first;
 
       final ttsParams = TtsParamsUniversal(
           voice: voice,
@@ -47,10 +36,8 @@ void main() async {
       final ttsResponse = await TtsUniversal.convertTts(ttsParams);
 
       //Get the audio bytes.
-      final audioBytes = ttsResponse.audio.buffer
-          .asByteData(); //you can save to a file for playback
-      print(
-          "Audio size: ${(audioBytes.lengthInBytes / (1024 * 1024)).toStringAsPrecision(2)} Mb");
+      final audioBytes = ttsResponse.audio.buffer.asByteData(); //you can save to a file for playback
+      print("Audio size: ${(audioBytes.lengthInBytes / (1024 * 1024)).toStringAsPrecision(2)} Mb");
     }
   } catch (e) {
     print("Something went wrong: $e");

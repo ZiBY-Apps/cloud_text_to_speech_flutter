@@ -1,4 +1,3 @@
-import 'package:cloud_text_to_speech/src/amazon/audio/audio_output_format.dart';
 import 'package:cloud_text_to_speech/src/google/audio/audio_output_format.dart';
 import 'package:cloud_text_to_speech/src/microsoft/audio/audio_output_format.dart';
 
@@ -46,26 +45,6 @@ class AudioOutputFormatMapper {
         return AudioOutputFormatMicrosoft.raw8Khz8BitMonoMulaw;
       // case AudioOutputFormatUniversal.alaw:
       //   return AudioOutputFormatMicrosoft.raw8Khz8BitMonoAlaw;
-      default:
-        throw UnsupportedError("Format $universalFormat is not supported");
-    }
-  }
-
-  static String toAmazon(String universalFormat) {
-    switch (universalFormat) {
-      case AudioOutputFormatUniversal.pcm16Bit8KhzMono:
-      case AudioOutputFormatUniversal.pcm16Bit16KhzMono:
-      case AudioOutputFormatUniversal.pcm16Bit24KhzMono:
-        return AudioOutputFormatAmazon.pcm;
-      case AudioOutputFormatUniversal.mp3_32k:
-      case AudioOutputFormatUniversal.mp3_64k:
-      case AudioOutputFormatUniversal.mp3_128k:
-        return AudioOutputFormatAmazon.mp3;
-      // case AudioOutputFormatUniversal.oggVorbis:
-      //   return AudioOutputFormatAmazon.oggVorbis;
-      // case AudioOutputFormatUniversal.mulaw:
-      // case AudioOutputFormatUniversal.alaw:
-      //   return null;  // Amazon does not support mu-law and A-law
       default:
         throw UnsupportedError("Format $universalFormat is not supported");
     }

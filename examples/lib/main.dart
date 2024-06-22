@@ -29,15 +29,9 @@ class MyHomePage extends StatefulWidget {
   MyHomePage({super.key, required this.title});
 
   final String title;
-  final InitParamsGoogle initParamsGoogle =
-      InitParamsGoogle(apiKey: dotenv.env['GOOGLE_API_KEY']!);
+  final InitParamsGoogle initParamsGoogle = InitParamsGoogle(apiKey: dotenv.env['GOOGLE_API_KEY']!);
   final InitParamsMicrosoft initParamsMicrosoft = InitParamsMicrosoft(
-      subscriptionKey: dotenv.env['MICROSOFT_SUBSCRIPTION_KEY']!,
-      region: dotenv.env['MICROSOFT_REGION']!);
-  final InitParamsAmazon initParamsAmazon = InitParamsAmazon(
-      keyId: dotenv.env['AMAZON_KEY_ID']!,
-      accessKey: dotenv.env['AMAZON_ACCESS_KEY']!,
-      region: dotenv.env['AMAZON_REGION']!);
+      subscriptionKey: dotenv.env['MICROSOFT_SUBSCRIPTION_KEY']!, region: dotenv.env['MICROSOFT_REGION']!);
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -69,8 +63,8 @@ class _MyHomePageState extends State<MyHomePage> {
           //Set all voices
           setState(() {
             voices = voicesGoogle
-                .map((e) => Text(
-                    '${e.locale.name} - ${e.locale.code}: ${e.name} (${e.gender}) - ${e.engines.join(", ")}'))
+                .map((e) =>
+                    Text('${e.locale.name} - ${e.locale.code}: ${e.name} (${e.gender}) - ${e.engines.join(", ")}'))
                 .toList();
           });
 
@@ -91,12 +85,10 @@ class _MyHomePageState extends State<MyHomePage> {
           final ttsResponseGoogle = await TtsGoogle.convertTts(paramsGoogle);
 
           //Get the audio bytes.
-          final audioBytesGoogle = ttsResponseGoogle.audio.buffer
-              .asByteData(); // you can save to a file for playback
+          final audioBytesGoogle = ttsResponseGoogle.audio.buffer.asByteData(); // you can save to a file for playback
 
           setState(() {
-            audioSize =
-                "${(audioBytesGoogle.lengthInBytes / (1024 * 1024)).toStringAsPrecision(2)} Mb";
+            audioSize = "${(audioBytesGoogle.lengthInBytes / (1024 * 1024)).toStringAsPrecision(2)} Mb";
           });
         } catch (e) {
           rethrow;
@@ -118,8 +110,8 @@ class _MyHomePageState extends State<MyHomePage> {
           //Set all voices
           setState(() {
             voices = voicesMicrosoft
-                .map((e) => Text(
-                    '${e.locale.name} - ${e.locale.code}: ${e.name} (${e.gender}) - ${e.engines.join(", ")}'))
+                .map((e) =>
+                    Text('${e.locale.name} - ${e.locale.code}: ${e.name} (${e.gender}) - ${e.engines.join(", ")}'))
                 .toList();
           });
           //Pick an English Voice
@@ -130,68 +122,18 @@ class _MyHomePageState extends State<MyHomePage> {
 
           TtsParamsMicrosoft paramsMicrosoft = TtsParamsMicrosoft(
               voice: voiceMicrosoft,
-              audioFormat:
-                  AudioOutputFormatMicrosoft.audio48Khz192kBitrateMonoMp3,
+              audioFormat: AudioOutputFormatMicrosoft.audio48Khz192kBitrateMonoMp3,
               text: text,
               rate: 'slow',
               pitch: 'default');
 
-          final ttsResponseMicrosoft =
-              await TtsMicrosoft.convertTts(paramsMicrosoft);
+          final ttsResponseMicrosoft = await TtsMicrosoft.convertTts(paramsMicrosoft);
 
           //Get the audio bytes.
-          final audioBytesMicrosoft = ttsResponseMicrosoft.audio.buffer
-              .asByteData(); // you can save to a file for playback
+          final audioBytesMicrosoft =
+              ttsResponseMicrosoft.audio.buffer.asByteData(); // you can save to a file for playback
           setState(() {
-            audioSize =
-                "${(audioBytesMicrosoft.lengthInBytes / (1024 * 1024)).toStringAsPrecision(2)} Mb";
-          });
-        } catch (e) {
-          print("Something went wrong: $e");
-        }
-        break;
-      case 'amazon':
-        setState(() {
-          testTitle = 'Amazon TTS Test';
-        });
-
-        try {
-          TtsAmazon.init(params: widget.initParamsAmazon, withLogs: true);
-
-          // Get voices
-          final voicesResponseAmazon = await TtsAmazon.getVoices();
-          final voicesAmazon = voicesResponseAmazon.voices;
-
-          //Set all voices
-          setState(() {
-            voices = voicesAmazon
-                .map((e) => Text(
-                    '${e.locale.name} - ${e.locale.code}: ${e.name} (${e.gender}) - ${e.engines.join(", ")}'))
-                .toList();
-          });
-
-          //Pick an English Voice
-          final voiceAmazon = voicesResponseAmazon.voices
-              .where((element) => element.locale.code.startsWith("en-"))
-              .toList(growable: false)
-              .first;
-
-          TtsParamsAmazon paramsAmazon = TtsParamsAmazon(
-              voice: voiceAmazon,
-              audioFormat: AudioOutputFormatAmazon.mp3,
-              text: text,
-              rate: 'slow',
-              // optional
-              pitch: 'default');
-
-          final ttsResponseAmazon = await TtsAmazon.convertTts(paramsAmazon);
-
-          //Get the audio bytes.
-          final audioBytesAmazon = ttsResponseAmazon.audio.buffer
-              .asByteData(); // you can save to a file for playback
-          setState(() {
-            audioSize =
-                "${(audioBytesAmazon.lengthInBytes / (1024 * 1024)).toStringAsPrecision(2)} Mb";
+            audioSize = "${(audioBytesMicrosoft.lengthInBytes / (1024 * 1024)).toStringAsPrecision(2)} Mb";
           });
         } catch (e) {
           print("Something went wrong: $e");
@@ -207,7 +149,6 @@ class _MyHomePageState extends State<MyHomePage> {
               provider: 'amazon',
               googleParams: widget.initParamsGoogle,
               microsoftParams: widget.initParamsMicrosoft,
-              amazonParams: widget.initParamsAmazon,
               withLogs: true);
 
           for (String provider in ['amazon', 'microsoft', 'google']) {
@@ -219,16 +160,14 @@ class _MyHomePageState extends State<MyHomePage> {
             //Set all voices
             setState(() {
               voices = voicesUniversal
-                  .map((e) => Text(
-                      '${e.locale.name} - ${e.locale.code}: ${e.name} (${e.gender}) - ${e.engines.join(", ")}'))
+                  .map((e) =>
+                      Text('${e.locale.name} - ${e.locale.code}: ${e.name} (${e.gender}) - ${e.engines.join(", ")}'))
                   .toList();
             });
 
             //Pick an English Voice
-            final voiceUniversal = voicesUniversal
-                .where((element) => element.locale.code.startsWith("en-"))
-                .toList(growable: false)
-                .first;
+            final voiceUniversal =
+                voicesUniversal.where((element) => element.locale.code.startsWith("en-")).toList(growable: false).first;
 
             final ttsParams = TtsParamsUniversal(
                 voice: voiceUniversal,
@@ -241,11 +180,9 @@ class _MyHomePageState extends State<MyHomePage> {
             final ttsResponse = await TtsUniversal.convertTts(ttsParams);
 
             //Get the audio bytes.
-            final audioBytesUniversal = ttsResponse.audio.buffer
-                .asByteData(); // you can save to a file for playback
+            final audioBytesUniversal = ttsResponse.audio.buffer.asByteData(); // you can save to a file for playback
             setState(() {
-              audioSize =
-                  "${(audioBytesUniversal.lengthInBytes / (1024 * 1024)).toStringAsPrecision(2)} Mb";
+              audioSize = "${(audioBytesUniversal.lengthInBytes / (1024 * 1024)).toStringAsPrecision(2)} Mb";
             });
 
             await Future.delayed(const Duration(seconds: 2));
@@ -264,7 +201,6 @@ class _MyHomePageState extends State<MyHomePage> {
               provider: TtsProviders.combine,
               googleParams: widget.initParamsGoogle,
               microsoftParams: widget.initParamsMicrosoft,
-              amazonParams: widget.initParamsAmazon,
               withLogs: true);
 
           final voicesResponse = await TtsUniversal.getVoices();
@@ -279,10 +215,8 @@ class _MyHomePageState extends State<MyHomePage> {
           });
 
           //Pick an English Voice
-          final voiceUniversal = voicesUniversal
-              .where((element) => element.locale.code.startsWith("en-"))
-              .toList(growable: false)
-              .first;
+          final voiceUniversal =
+              voicesUniversal.where((element) => element.locale.code.startsWith("en-")).toList(growable: false).first;
 
           final ttsParams = TtsParamsUniversal(
               voice: voiceUniversal,
@@ -295,11 +229,9 @@ class _MyHomePageState extends State<MyHomePage> {
           final ttsResponse = await TtsUniversal.convertTts(ttsParams);
 
           //Get the audio bytes.
-          final audioBytesUniversal = ttsResponse.audio.buffer
-              .asByteData(); // you can save to a file for playback
+          final audioBytesUniversal = ttsResponse.audio.buffer.asByteData(); // you can save to a file for playback
           setState(() {
-            audioSize =
-                "${(audioBytesUniversal.lengthInBytes / (1024 * 1024)).toStringAsPrecision(2)} Mb";
+            audioSize = "${(audioBytesUniversal.lengthInBytes / (1024 * 1024)).toStringAsPrecision(2)} Mb";
           });
         } catch (e) {
           print("Something went wrong: $e");
@@ -368,7 +300,7 @@ class _MyHomePageState extends State<MyHomePage> {
               style: Theme.of(context).textTheme.headlineSmall,
             ),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           FloatingActionButton(
             onPressed: () => _tts('universal-combine'),
             tooltip: 'Increment',
@@ -377,7 +309,7 @@ class _MyHomePageState extends State<MyHomePage> {
               style: Theme.of(context).textTheme.headlineSmall,
             ),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           FloatingActionButton(
             onPressed: () => _tts('google'),
             tooltip: 'Increment',
@@ -386,7 +318,7 @@ class _MyHomePageState extends State<MyHomePage> {
               style: Theme.of(context).textTheme.headlineSmall,
             ),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           FloatingActionButton(
             isExtended: true,
             onPressed: () => _tts('microsoft'),
@@ -396,7 +328,7 @@ class _MyHomePageState extends State<MyHomePage> {
               style: Theme.of(context).textTheme.headlineSmall,
             ),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           FloatingActionButton(
             isExtended: true,
             onPressed: () => _tts('amazon'),
