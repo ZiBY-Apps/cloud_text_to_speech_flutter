@@ -135,7 +135,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "2.3.0"
+    version: "2.3.2"
   code_builder:
     dependency: transitive
     description:

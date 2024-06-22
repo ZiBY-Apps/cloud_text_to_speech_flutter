@@ -10,8 +10,7 @@ import 'package:cloud_text_to_speech/src/google/ssml/ssml.dart';
 import 'package:http/http.dart' as http;
 
 class AudioHandlerGoogle {
-  Future<AudioSuccessGoogle> getAudio(AudioRequestParamsGoogle params,
-      AuthenticationHeaderGoogle authHeader) async {
+  Future<AudioSuccessGoogle> getAudio(AudioRequestParamsGoogle params, AuthenticationHeaderGoogle authHeader) async {
     final client = http.Client();
     final audioClient = AudioClientGoogle(
       client: client,
@@ -20,22 +19,27 @@ class AudioHandlerGoogle {
     final mapper = AudioResponseMapperGoogle();
 
     try {
-      final ssml =
-          SsmlGoogle(text: params.text, rate: params.rate, pitch: params.pitch);
-
       final Map<String, dynamic> body = {
-        'input': {'ssml': ssml.sanitizedSsml},
-        'voice': {
-          'name': params.voice.code,
-          'languageCode': params.voice.locale.code
+        'input': {},
+        'voice': {'name': params.voice.code, 'languageCode': params.voice.locale.code},
+        'audioConfig': {
+          'pitch': params.pitch,
+          'speakingRate': params.rate,
+          'audioEncoding': params.audioFormat,
         },
-        'audioConfig': {'audioEncoding': params.audioFormat},
       };
+
+      if (params.ssml.isNotEmpty) {
+        final ssml = SsmlGoogle(text: params.ssml, rate: params.rate, pitch: params.pitch);
+
+        body['input']['ssml'] = ssml.sanitizedSsml;
+      } else {
+        body['input']['text'] = params.text;
+      }
 
       final String bodyJson = jsonEncode(body);
 
-      final response = await audioClient.post(Uri.parse(EndpointsGoogle.tts),
-          body: bodyJson);
+      final response = await audioClient.post(Uri.parse(EndpointsGoogle.tts), body: bodyJson);
       final audioResponse = mapper.map(response);
       if (audioResponse is AudioSuccessGoogle) {
         return audioResponse;
